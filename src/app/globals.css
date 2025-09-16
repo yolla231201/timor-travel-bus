@@ -1,0 +1,40 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-sans: "Poppins", Arial, Helvetica, sans-serif; /* tambahkan Poppins di root */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans); /* gunakan var yang baru */
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans); /* ganti Arial dkk jadi Poppins */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* src/app/globals.css atau tailwind.css */
+#snap-midtrans-wrapper iframe {
+  width: 90vw !important; /* 90% lebar viewport */
+  height: 90vh !important; /* 90% tinggi viewport */
+  max-width: 900px;
+  max-height: 1200px;
+}

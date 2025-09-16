@@ -1,0 +1,99 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  phone     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  bookings  Booking[]
+}
+
+model City {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  distance Int
+
+  bookingsFrom Booking[] @relation("BookingFromCity")
+  bookingsTo   Booking[] @relation("BookingToCity")
+}
+
+model Bus {
+  id             Int      @id @default(autoincrement())
+  name           String   @unique
+  type           String
+  basePrice      Int
+  facilities     Json
+  routes         Json
+  departureTimes Json
+
+  bookings Booking[]
+  seats    Seat[]
+}
+
+model Seat {
+  id         String   @id @default(uuid())
+  busId      Int
+  seatNumber String
+  status     String   @default("available") // available | locked | booked
+  lockedAt   DateTime?
+  bookingId  String?  // null jika kursi belum dibooking
+
+  bus     Bus     @relation(fields: [busId], references: [id])
+  booking Booking? @relation(fields: [bookingId], references: [id])
+}
+
+model Booking {
+  id            String   @id @default(uuid())
+  userId        String
+  busId         Int
+  fromCityId    Int
+  toCityId      Int
+  date          DateTime
+  numPassengers Int
+  totalPrice    Int
+  status        String   @default("pending") // pending | paid | expired
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user     User @relation(fields: [userId], references: [id])
+  bus      Bus  @relation(fields: [busId], references: [id])
+  fromCity City @relation("BookingFromCity", fields: [fromCityId], references: [id])
+  toCity   City @relation("BookingToCity", fields: [toCityId], references: [id])
+
+  tickets Ticket[]
+  seats   Seat[] @relation()
+}
+
+model Ticket {
+  id         String   @id @default(uuid())
+  bookingId  String
+  name       String
+  birthDate  DateTime
+  address    String
+  ticketCode String   @unique
+  status     String   @default("valid")
+  createdAt  DateTime @default(now())
+
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  emailLogs EmailLog[]
+}
+
+model EmailLog {
+  id       Int      @id @default(autoincrement())
+  ticketId String
+  sentAt   DateTime @default(now())
+  status   String   @default("sent")
+
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+}
